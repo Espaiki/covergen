@@ -11,6 +11,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap');
 
 /* ============================================================
+   PHASE 2 — CSS Custom Properties (palette from LayoutContext)
+   ============================================================ */
+:root {
+  --color-primary:   {{ palette_primary }};
+  --color-accent:    {{ palette_accent }};
+  --color-panel-bg:  {{ palette_panel_bg }};
+  --color-outline:   {{ palette_outline }};
+}
+
+/* ============================================================
    CSS PAGED MEDIA
    ============================================================ */
 @page {
@@ -27,7 +37,9 @@ html, body {
   height: {{ height_cm }}cm;
 }
 
+/* PHASE 4 — body is the absolute-position anchor for .deco elements */
 body {
+  position: relative;
   overflow: hidden;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
@@ -45,42 +57,55 @@ body {
 }
 
 /* ============================================================
-   TEXT-OUTLINE UTILITIES
-   8-directional text-shadow funciona en WeasyPrint/Cairo.
-   -webkit-text-stroke mejora el preview en Chromium (Streamlit).
+   PHASE 4 — Corner decoration slots
+   ============================================================ */
+.deco {
+  position: absolute;
+  width:  4cm;
+  height: 4cm;
+  color: var(--color-primary);   /* SVGs inherit via currentColor */
+  opacity: 0.85;
+  pointer-events: none;
+}
+.deco svg { width: 100%; height: 100%; display: block; }
+
+.deco--top-left     { top: 0;    left: 0; }
+.deco--top-right    { top: 0;    right: 0;  transform: scaleX(-1); }
+.deco--bottom-left  { bottom: 0; left: 0;   transform: scaleY(-1); }
+.deco--bottom-right { bottom: 0; right: 0;  transform: scale(-1,-1); }
+
+/* ============================================================
+   PHASE 2 — Text-outline utilities (palette-aware shadows)
    ============================================================ */
 .outline-strong {
   text-shadow:
-     2px  2px 0 rgba(0,0,0,0.90),
-    -2px -2px 0 rgba(0,0,0,0.90),
-     2px -2px 0 rgba(0,0,0,0.90),
-    -2px  2px 0 rgba(0,0,0,0.90),
-     0    2px 0 rgba(0,0,0,0.90),
-     0   -2px 0 rgba(0,0,0,0.90),
-     2px  0   0 rgba(0,0,0,0.90),
-    -2px  0   0 rgba(0,0,0,0.90),
-     0    0   6px rgba(0,0,0,0.50);
+     2px  2px 0 var(--color-outline),
+    -2px -2px 0 var(--color-outline),
+     2px -2px 0 var(--color-outline),
+    -2px  2px 0 var(--color-outline),
+     0    2px 0 var(--color-outline),
+     0   -2px 0 var(--color-outline),
+     2px  0   0 var(--color-outline),
+    -2px  0   0 var(--color-outline),
+     0    0   6px var(--color-outline);
   -webkit-text-stroke: 1.5px rgba(0,0,0,0.75);
 }
 
 .outline-medium {
   text-shadow:
-     1px  1px 0 rgba(0,0,0,0.85),
-    -1px -1px 0 rgba(0,0,0,0.85),
-     1px -1px 0 rgba(0,0,0,0.85),
-    -1px  1px 0 rgba(0,0,0,0.85),
-     0    1px 0 rgba(0,0,0,0.85),
-     0   -1px 0 rgba(0,0,0,0.85),
-     1px  0   0 rgba(0,0,0,0.85),
-    -1px  0   0 rgba(0,0,0,0.85);
+     1px  1px 0 var(--color-outline),
+    -1px -1px 0 var(--color-outline),
+     1px -1px 0 var(--color-outline),
+    -1px  1px 0 var(--color-outline),
+     0    1px 0 var(--color-outline),
+     0   -1px 0 var(--color-outline),
+     1px  0   0 var(--color-outline),
+    -1px  0   0 var(--color-outline);
   -webkit-text-stroke: 1px rgba(0,0,0,0.70);
 }
 
 /* ============================================================
-   COVER SHELL — flex column, espacio distribuido
-   padding: top y bottom para clearance del marco de imagen.
-   FIX: se elimina el padding-top agresivo; la institución
-   se posiciona de forma natural en el primer flex-item.
+   PHASE 1 — Cover shell (safe-margin from context)
    ============================================================ */
 .cover {
   width: 100%;
@@ -88,7 +113,7 @@ body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 5vh 4vw 5vh;
+  padding: {{ safe_margin_cm }}cm 1.5cm;
   font-size: 2.4vh;
 }
 
@@ -99,9 +124,7 @@ body {
 }
 
 /* ============================================================
-   HEADER — Institución
-   FIX Bug 1: sin margin-top agresivo; la institución aparece
-   en la parte superior natural del flujo flex.
+   HEADER — Institution name
    ============================================================ */
 .cover__header {
   text-align: center;
@@ -113,7 +136,7 @@ body {
   font-size: 1.1em;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #ffffff;
+  color: var(--color-primary);
   line-height: 1.35;
   text-align: center;
   max-width: 85%;
@@ -121,7 +144,7 @@ body {
 }
 
 /* ============================================================
-   MAIN — Materia (elemento dominante)
+   MAIN — Subject (dominant element)
    ============================================================ */
 .cover__main {
   text-align: center;
@@ -133,60 +156,64 @@ body {
   font-size: 3.5em;
   line-height: 1.05;
   letter-spacing: -0.01em;
-  color: #ffffff;
+  color: var(--color-primary);
 }
 
 /* ============================================================
-   FOOTER — bloque de datos + año
-   FIX Bug 2: footer centra horizontalmente el bloque .meta.
-   El bloque .meta tiene ancho fijo (65%) y texto left-aligned
-   dentro — efecto "bloque centrado, texto a la izquierda".
+   FOOTER — metadata block + year
    ============================================================ */
 .cover__footer {
   display: flex;
   flex-direction: column;
-  align-items: center;   /* centra el bloque .meta en la página */
+  align-items: center;
   gap: 0.8em;
 }
 
+/* PHASE 3 — CSS table layout: labels right-align, values left-align,
+   whole block auto-centered by margin: 0 auto on display:table. */
 .meta {
-  width: 65%;            /* ancho definido → el auto-margin lo centra */
-  display: flex;
-  flex-direction: column;
-  gap: 0.6em;
+  display: table;
+  margin: 0 auto;
+  border-collapse: separate;
+  border-spacing: 1.2em 0.5em;
+  background: var(--color-panel-bg);
+  padding: 0.6em 1em;
+  border-radius: 14px;
 }
 
 .meta__row {
-  display: flex;
-  align-items: baseline;
-  gap: 0.8em;
-  font-size: 1.25em;
-  text-align: left;
+  display: table-row;
 }
 
 .meta__label {
+  display: table-cell;
+  text-align: right;
+  vertical-align: baseline;
   font-family: 'Nunito', sans-serif;
   font-weight: 900;
-  font-size: 0.7em;
+  font-size: 0.85em;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #ffffff;
-  min-width: 6em;
-  flex-shrink: 0;
+  color: var(--color-accent);
+  white-space: nowrap;
 }
 
 .meta__value {
+  display: table-cell;
+  text-align: left;
+  vertical-align: baseline;
   font-family: 'Nunito', sans-serif;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--color-primary);
+  white-space: nowrap;
 }
 
-/* Año lectivo — centrado, bajo el bloque de datos */
+/* Year — centered below the meta table */
 .year {
   font-family: 'Nunito', sans-serif;
   font-weight: 900;
   font-size: 1.8em;
-  color: #ffffff;
+  color: var(--color-primary);
   letter-spacing: 0.28em;
   text-align: center;
   width: 100%;
@@ -195,23 +222,30 @@ body {
 </head>
 
 <body>
+{# PHASE 4 — SVG corner ornaments, injected before the cover shell #}
+{% if decorations %}
+  {% for slot in decorations %}
+    <div class="deco deco--{{ slot.position }}">{{ slot.svg | safe }}</div>
+  {% endfor %}
+{% endif %}
+
 <div class="cover">
 
-  <!-- ── HEADER — institución en la parte superior ── -->
+  <!-- ── HEADER ── -->
   <header class="cover__header">
     <div class="card">
       <div class="institution outline-strong">{{ institution_name }}</div>
     </div>
   </header>
 
-  <!-- ── MAIN — materia (elemento dominante) ── -->
+  <!-- ── MAIN ── -->
   <main class="cover__main">
     <div class="card">
       <h1 class="subject outline-strong">{{ subject_name }}</h1>
     </div>
   </main>
 
-  <!-- ── FOOTER — bloque de datos centrado + año ── -->
+  <!-- ── FOOTER — CSS-table meta block + year ── -->
   <footer class="cover__footer">
     <div class="card">
       <div class="meta">
