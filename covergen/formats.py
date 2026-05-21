@@ -23,6 +23,10 @@ class PaperFormat(BaseModel):
     name: str = Field(min_length=2, max_length=64)
     width_cm: float = Field(gt=0, le=100)
     height_cm: float = Field(gt=0, le=100)
+    safe_margin_cm: float = Field(
+        default=1.8, ge=0.5, le=4.0,
+        description="Print-safe clearance from physical paper edges, in centimeters.",
+    )
 
     @property
     def aspect_ratio(self) -> float:
