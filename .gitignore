@@ -1,0 +1,49 @@
+# === Credenciales — NUNCA subir ===
+.env
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# === Entornos virtuales ===
+.venv/
+venv/
+env/
+ENV/
+
+# === WeasyPrint / salida generada ===
+output/
+*.pdf
+
+# === Assets generados por IA (pueden ser grandes) ===
+assets/backgrounds/generated_ai_bg.png
+assets/backgrounds/controlnet_result.png
+
+# === IDEs ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === OS ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Streamlit ===
+.streamlit/secrets.toml
+streamlit_out.log
+
+# === Claude Code (configuración local del IDE) ===
+.claude/
+
+# === Artefactos de instalación rotos ===
+=*
